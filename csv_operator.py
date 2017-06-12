@@ -60,28 +60,37 @@ def connect_some_days(days, place):#株価データを数日分結合
 
 
 
-def base_transform(place):
+def base_transform(place,to_place,days):
     basename = ['start','high','low','last']
+    column_name = copy.copy(basename)
+    for i in range(days-1):
+        for j in basename:
+            column_name.append(j+str(i+1))
     os.chdir(place)
     directory =os.listdir(place)
-    name = directory[0]
-    # for name in directory:
-    data = pd.read_csv(name, encoding='cp932')
+    # name = directory[0]
+    for name in directory:
+        data = pd.read_csv(name, encoding='cp932')
     # print(data)
-    start = copy.copy(data['start'].values)
+        start = copy.copy(data['start'].values)
     # print(start)
-    for i in range(len(basename)):
-        data[basename[i]] = (data[basename[i]]/start -1.0)
-    print(data)
+        for i in range(len(column_name)):
+            data[column_name[i]] = (data[column_name[i]]/start -1.0)
+        rename = name.rstrip('.csv') + '_reform.csv'
+        os.chdir(to_place)
+        data.to_csv(rename)
+        os.chdir(place)
+
 
 
 
 
 
 place = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/download_stock_data_test'
-to_place = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/stock_data_except0KB'
-to_place2 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/column_rename'
-to_place3 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/stock_data_for2days'
+place1 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/stock_data_except0KB'
+place2 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/column_rename'
+place3 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/stock_data_for2days'
+place4 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/stock_data_for2days_reform'
 add = 'column_rename'
 
 
@@ -90,4 +99,4 @@ add = 'column_rename'
 # column_rename(to_place,to_place2,add)
 
 # connect_some_days(3,to_place2)
-base_transform(to_place3)
+base_transform(place3,place4,2)
