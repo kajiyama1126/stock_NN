@@ -13,9 +13,11 @@ def copy_file_size_select(size, name, place, to_place):
     except:
         pass
     file_name = name
+    os.chdir(to_place)
     if os.path.isfile(file_name):
         pass
     else:
+        os.chdir(place)
         if os.path.getsize(name) > size:
             shutil.copyfile(place + '\\' + name, to_place + '\\' + name)
 
@@ -47,9 +49,9 @@ def column_rename(place, to_place, add_name):
 
 
 # 株価データを数日分結合
-def connect_some_days(days, place):
+def connect_some_days(days, place,place0):
     folder_name = 'stock_data_for' + str(days) + 'days'
-    os.chdir('/Users/kajiyama/PycharmProjects/stock_NN/stock_data')
+    os.chdir(place0)
     try:
         os.mkdir(folder_name)
     except:
@@ -67,24 +69,24 @@ def connect_some_days(days, place):
             base_data = pd.concat([base_data, data], axis=1)
         base_data = base_data.dropna()
         filename = directory[i].rstrip('.csv') + 'for' + str(days) + 'days.csv'
-        os.chdir('/Users/kajiyama/PycharmProjects/stock_NN/stock_data/' + folder_name)
+        os.chdir(place0 + '/' + folder_name)
         base_data.to_csv(filename)
         os.chdir(place)
     print('finish_connect_some_days')
 
 
 # 初日の始値をもとに上昇率に変換
-def base_transform(days):
+def base_transform(days,place0):
     basename = ['start', 'high', 'low', 'last']
     column_name = copy.copy(basename)
-    os.chdir('/Users/kajiyama/PycharmProjects/stock_NN/stock_data')
+    os.chdir(place0)
     folder_name = 'stock_data_for' + str(days) + 'days_reform'
     try:
         os.mkdir(folder_name)
     except:
         pass
-    place = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/'+'stock_data_for' + str(days)+'days'
-    to_place = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/'+folder_name
+    place = place0 + '/stock_data_for' + str(days)+'days'
+    to_place = place0 + '/' +folder_name
     for i in range(days - 1):
         for j in basename:
             column_name.append(j + str(i + 1))
@@ -107,9 +109,9 @@ def base_transform(days):
 
 
 # 教師データを作成（(上昇率/パーセント)を4捨5入）
-def make_teacher_data(place, percent):
+def make_teacher_data(place,place0 ,percent):
     to_place = 'stock_data_teacher'
-    place0 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data'
+    # place0 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data'
     os.chdir(place0)
     try:
         os.mkdir('stock_data_teacher')
@@ -136,8 +138,16 @@ def make_teacher_data(place, percent):
     print('finish_make_teacher_data')
 
 # 教師データと上昇率のデータを合成
-def connect_data(teacher_place, to_place, days):
-    place = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/'+'stock_data_for' + str(days) + 'days_reform'
+def connect_data(teacher_place, place0, days):
+    folder_name = 'connect_for' + str(days)+'days'
+    os.chdir(place0)
+    try:
+        os.mkdir(folder_name)
+    except:
+        pass
+    to_place = place0 + '/'+folder_name
+
+    place =  place0 +'/stock_data_for' + str(days) + 'days_reform'
     os.chdir(place)
     directory = os.listdir(place)
     teacher_directory = os.listdir(teacher_place)
@@ -170,14 +180,21 @@ place5 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/stock_data_teacher
 place6 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data/connect'
 add = 'column_rename'
 
-days = 5
+place0 = 'D:\Pycharm Project\stock_NN\stock_data'
+place = 'D:\Pycharm Project\stock_NN\stock_data\download_stock_data'
+place1 = 'D:\Pycharm Project\stock_NN\stock_data\stock_data_except0KB'
+place2 = 'D:\Pycharm Project\stock_NN\stock_data\column_rename'
+place5 = 'D:\Pycharm Project\stock_NN\stock_data\stock_data_teacher'
+place6 = 'D:\Pycharm Project\stock_NN\stock_data\connect'
+
+days = 15
 percent = 2
+#
+# except0KB(place, place1)
+#
+# column_rename(place1, place2, add)
 
-except0KB(place, place1)
-
-column_rename(place1, place2, add)
-
-connect_some_days(days, place2)
-base_transform(days)
-make_teacher_data(place2, percent)
-connect_data(place5, place6, days)
+connect_some_days(days, place2,place0)
+base_transform(days,place0)
+# make_teacher_data(place2,place0, percent)
+connect_data(place5,place0, days)
