@@ -12,8 +12,12 @@ def copy_file_size_select(size, name, place, to_place):
         os.makedirs(to_place)
     except:
         pass
-    if os.path.getsize(name) > size:
-        shutil.copyfile(place + '\\' + name, to_place + '\\' + name)
+    file_name = name
+    if os.path.isfile(file_name):
+        pass
+    else:
+        if os.path.getsize(name) > size:
+            shutil.copyfile(place + '\\' + name, to_place + '\\' + name)
 
 
 # 0Kbのファイルを除いてコピー(place⇨to_place)
