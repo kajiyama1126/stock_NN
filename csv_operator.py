@@ -107,6 +107,55 @@ def base_transform(days,place0):
         os.chdir(place)
     print('finish_base_transform')
 
+def base_transform_vwap(days,place0):
+    basename = ['start', 'high', 'low', 'last']
+    base_vwap = ['vwap']
+    base_dekidakata = ['number of sale']
+    base_money = ['money of sale']
+    column_name = copy.copy(basename)
+    vwap = copy.copy(base_vwap)
+    dekidata = copy.copy(base_dekidakata)
+    money = copy.copy(base_money)
+
+    os.chdir(place0)
+    folder_name = 'stock_data_for' + str(days) + 'days_reform_vwap'
+    try:
+        os.mkdir(folder_name)
+    except:
+        pass
+    place = place0 + '/stock_data_for' + str(days)+'days'
+    to_place = place0 + '/' +folder_name
+    for i in range(days - 1):
+        for j in basename:
+            column_name.append(j + str(i + 1))
+        for j in base_vwap:
+            vwap.append(j+ str(i+1))
+        for j in base_dekidakata:
+            dekidata.append(j + str(i + 1))
+        for j in base_money:
+            money.append(j + str(i+1))
+
+    os.chdir(place)
+    directory = os.listdir(place)
+    # name = directory[0]
+    for name in directory:
+        data = pd.read_csv(name, encoding='cp932', index_col=0)
+        # data = data.set_index(data.iloc[:,0])
+        # print(data)
+        start = copy.copy(data['start'].values)
+        # print(start)
+        for i in range (len(vwap)):
+            data[vwap[i]] = (data[money[i]]/data[dekidata[i]])
+        for i in range(len(column_name)):
+            data[column_name[i]] = (data[column_name[i]] / start - 1.0)
+        for i in range(len(vwap)):
+            data[vwap[i]] = (data[vwap[i]] / start -1.0)
+        rename = name.rstrip('.csv') + '_reform.csv'
+        os.chdir(to_place)
+        data.to_csv(rename)
+        os.chdir(place)
+    print('finish_base_transform')
+
 
 # 教師データを作成（(上昇率/パーセント)を4捨5入）
 def make_teacher_data(place,place0 ,percent):
@@ -168,6 +217,36 @@ def connect_data(teacher_place, place0, days):
         data.to_csv(rename)
         i += 1
     print('finish_connect_data')
+def connect_data_vwap(teacher_place, place0, days):
+    folder_name = 'connect_for' + str(days)+'days'+'vwap'
+    os.chdir(place0)
+    try:
+        os.mkdir(folder_name)
+    except:
+        pass
+    to_place = place0 + '/'+folder_name
+
+    place =  place0 +'/stock_data_for' + str(days) + 'days_reform_vwap'
+    os.chdir(place)
+    directory = os.listdir(place)
+    teacher_directory = os.listdir(teacher_place)
+    i = 0
+    for name in directory:
+        os.chdir(place)
+        data = pd.read_csv(name, encoding='cp932', index_col=0)
+        os.chdir(teacher_place)
+        if i + days > len(teacher_directory) - 1:
+            print('finish_connect_data')
+            return
+        teacher_name = teacher_directory[i + days]
+        teacher_data = pd.read_csv(teacher_name, encoding='cp932', index_col=0)
+        data = pd.concat([data, teacher_data], axis=1)
+        data = data.dropna()
+        os.chdir(to_place)
+        rename = name.rstrip('.csv') + 'connect.csv'
+        data.to_csv(rename)
+        i += 1
+    print('finish_connect_data')
 
 
 place0 = '/Users/kajiyama/PycharmProjects/stock_NN/stock_data'
@@ -194,7 +273,9 @@ percent = 2
 #
 # column_rename(place1, place2, add)
 
-connect_some_days(days, place2,place0)
-base_transform(days,place0)
+# connect_some_days(days, place2,place0)
+# base_transform(days,place0)
+base_transform_vwap(days,place0)
 # make_teacher_data(place2,place0, percent)
-connect_data(place5,place0, days)
+# connect_data(place5,place0, days)
+connect_data_vwap(place5,place0,days)
