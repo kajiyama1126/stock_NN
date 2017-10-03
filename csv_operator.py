@@ -5,6 +5,7 @@ import shutil
 import numpy as np
 import pandas as pd
 
+#今後cythonでの高速化を検討・・・・
 
 def copy_file_size_select(size, name, place, to_place):
     os.chdir(place)
@@ -266,14 +267,14 @@ place2 = 'D:\Pycharm Project\stock_NN\stock_data\column_rename'
 place5 = 'D:\Pycharm Project\stock_NN\stock_data\stock_data_teacher'
 place6 = 'D:\Pycharm Project\stock_NN\stock_data\connect'
 
-days = 15
+days = 30
 percent = 2
 #
 # except0KB(place, place1)
 #
 # column_rename(place1, place2, add)
 
-# connect_some_days(days, place2,place0)
+connect_some_days(days, place2,place0)
 # base_transform(days,place0)
 base_transform_vwap(days,place0)
 # make_teacher_data(place2,place0, percent)
