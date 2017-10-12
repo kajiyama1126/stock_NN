@@ -67,6 +67,29 @@ def variation(data):
 
     return data
 
+#終値-始値 1(+) ,0(-or 0)
+def add_answer(place,to_place,add_name):
+    os.chdir(place)
+    directory = os.listdir(place)
+    for name in directory:
+        data = pd.read_csv(name, encoding='cp932',index_col='sequence')
+        start = np.array(data['start'])
+        last = np.array(data['last'])
+        print(start,last)
+        answer = np.array((np.sign(last-start)+np.ones_like(start))/2,dtype=int)
+        data['answer'] = answer
+        # index_len = len(data.index)
+        # tmp = []
+        # for i in range(int(index_len)):
+        #     if i == 0:
+        #         tmp.append(0)
+        #     else:
+        #         tmp.append()
+        rename = name.rstrip('.csv') + add_name + '.csv'
+        os.chdir(to_place)
+        data.to_csv(rename)
+        os.chdir(place)
+
 if __name__ == '__main__':
     direct = 'D:\Pycharm Project\stock_NN\ptest'
     to_direct = 'D:\Pycharm Project\stock_NN\ptest1'
@@ -75,4 +98,5 @@ if __name__ == '__main__':
     to_direct4= 'D:\Pycharm Project\stock_NN\ptest4'
     # column_rename(direct,to_direct,'re')
     # time_sort(to_direct,to_direct2,'sort')
-    add_column(to_direct2,to_direct3,'add')
+    # add_column(to_direct2,to_direct3,'add')
+    add_answer(to_direct3,to_direct4,'answer')
